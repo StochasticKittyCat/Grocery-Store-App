@@ -1,0 +1,152 @@
+---
+title: "Grocery Store"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(plotly)
+df <- read_csv("a1-grocerystoresurvey.csv", skip = 1) %>%
+  mutate(Chain = 
+           case_when(
+             Chain %in% c("Minor A",
+                          "Minor B",
+                          "Minor C",
+                          "Minor D",
+                          "Minor E",
+                          "Minor G") ~ "Minor",
+             TRUE ~ Chain
+           ))
+```
+
+Overview
+=======================================================================
+
+
+Welcome to our dashboard! We're...
+
+* We assume...
+
+* 
+
+Demographics
+=======================================================================
+
+Inputs {.sidebar}
+-------------------------------------
+
+```{r}
+sliderInput("bins", "Select the number of bins:",
+            min = 5, max = 100, value = 30)
+```
+
+
+Row
+-------------------------------------
+    
+### Age
+    
+```{r}
+renderPlot({
+  df %>%
+    ggplot(aes(x = Age, y = PurchaseAmount)) +
+    geom_point()
+})
+```
+ 
+### Family Size
+    
+```{r}
+renderPlot({
+  df %>%
+    ggplot(aes(x = FamilySize, y = PurchaseAmount)) +
+    geom_point()
+})
+``` 
+
+Row
+-------------------------------------
+    
+### Chart 3
+    
+```{r}
+renderPlot({
+  df %>%
+    ggplot(aes(x = Income, y = PurchaseAmount)) +
+    geom_point()
+})
+```
+    
+### Chart 4
+
+```{r}
+```
+
+
+Targets
+=======================================================================
+
+Inputs {.sidebar}
+-------------------------------------
+
+Please select the ....
+
+```{r}
+selectInput("gender", "Select gender:",
+            choices = df$Gender, multiple = TRUE,
+            selected = c("Male", "Female"))
+
+sliderInput("age", "Select age:",
+            min = 18, max = 92, value = c(18, 92))
+```
+
+Row {data-height=500}
+-------------------------------------
+
+### Chart 1
+
+```{r}
+renderPlotly({
+  g <- df %>%
+    filter(Gender %in% input$gender) %>%
+    #       Age < input$age[1], 
+    #       Age > input$age[2])
+    ggplot(aes(x = Income, y = PurchaseAmount)) +
+    geom_point()
+  
+  ggplotly(g)
+})
+```
+
+Row {data-height=500}
+-------------------------------------
+   
+### Chart 2
+
+```{r}
+renderPlotly({
+  df %>%
+    #filter() %>%
+    count(Gender) %>%
+    ggplot(aes(x = Gender, y = n)) +
+    geom_col()
+})
+```   
+    
+### Chart 3
+
+```{r}
+renderPlotly({
+  df %>%
+    #filter() %>%
+    count(Occupation) %>%
+    ggplot(aes(x = Occupation, y = n)) +
+    geom_col() +
+    coord_flip()
+})
+```
